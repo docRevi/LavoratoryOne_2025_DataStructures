@@ -14,8 +14,6 @@ type Tree struct {
 	root *TreeNode
 }
 
-var tree Tree
-
 func NewTree() *Tree {
 	return &Tree{}
 }
@@ -47,9 +45,8 @@ func (t *Tree) TPUSH(value int) {
 	}
 }
 
-func (t *Tree) TSEARCH(value int) bool {
-	iter := t.root
-
+func (t *Tree) TSEARCH(root *TreeNode, value int) bool {
+	iter := root
 	for iter != nil {
 		if iter.value == value {
 			return true
@@ -62,11 +59,7 @@ func (t *Tree) TSEARCH(value int) bool {
 	return false
 }
 
-func (t *Tree) IsFullBinaryTree() bool {
-	return isFullBinaryTree(t.root)
-}
-
-func isFullBinaryTree(root *TreeNode) bool {
+func (t *Tree) isFullBinaryTree(root *TreeNode) bool {
 	if root == nil {
 		return true
 	}
@@ -76,90 +69,70 @@ func isFullBinaryTree(root *TreeNode) bool {
 	}
 
 	if root.left != nil && root.right != nil {
-		return isFullBinaryTree(root.left) && isFullBinaryTree(root.right)
+		return t.isFullBinaryTree(root.left) && t.isFullBinaryTree(root.right)
 	}
 
 	return false
 }
 
-func (t *Tree) HeightTree() int {
-	return heightTree(t.root)
-}
-
-func heightTree(root *TreeNode) int {
+func (t *Tree) heightTree(root *TreeNode) int {
 	if root == nil {
 		return 0
 	}
-	lh := heightTree(root.left)
-	rh := heightTree(root.right)
+	lh := t.heightTree(root.left)
+	rh := t.heightTree(root.right)
 	if lh > rh {
 		return 1 + lh
 	}
 	return 1 + rh
 }
 
-func (t *Tree) PrintLevel(level int) {
-	printLevel(t.root, level)
-}
-
-func printLevel(root *TreeNode, level int) {
+func (t *Tree) printLevel(root *TreeNode, level int) {
 	if root == nil {
 		return
 	}
 	if level == 1 {
 		fmt.Print(root.value, " ")
 	} else {
-		printLevel(root.left, level-1)
-		printLevel(root.right, level-1)
+		t.printLevel(root.left, level-1)
+		t.printLevel(root.right, level-1)
 	}
 }
 
-func (t *Tree) Print() {
-	h := t.HeightTree()
+func (t *Tree) print(root *TreeNode) {
+	h := t.heightTree(root)
 	for i := 1; i <= h; i++ {
-		t.PrintLevel(i)
+		t.printLevel(root, i)
 	}
 	fmt.Println()
 }
 
-func (t *Tree) PrintInOrder() {
-	printInOrder(t.root)
-	fmt.Println()
-}
-
-func printInOrder(root *TreeNode) {
+func (t *Tree) printInOrder(root *TreeNode) {
 	if root == nil {
 		return
 	}
-	printInOrder(root.left)
+	t.printInOrder(root.left)
 	fmt.Print(root.value, " ")
-	printInOrder(root.right)
-}
-
-func (t *Tree) PrintPreOrder() {
-	printPreOrder(t.root)
+	t.printInOrder(root.right)
 	fmt.Println()
 }
 
-func printPreOrder(root *TreeNode) {
+func (t *Tree) printPreOrder(root *TreeNode) {
 	if root == nil {
 		return
 	}
 	fmt.Print(root.value, " ")
-	printPreOrder(root.left)
-	printPreOrder(root.right)
-}
-
-func (t *Tree) PrintPostOrder() {
-	printPostOrder(t.root)
+	t.printPreOrder(root.left)
+	t.printPreOrder(root.right)
 	fmt.Println()
 }
 
-func printPostOrder(root *TreeNode) {
+func (t *Tree) printPostOrder(root *TreeNode) {
 	if root == nil {
 		return
 	}
-	printPostOrder(root.left)
-	printPostOrder(root.right)
+	t.printPostOrder(root.left)
+	t.printPostOrder(root.right)
 	fmt.Print(root.value, " ")
+	fmt.Println()
 }

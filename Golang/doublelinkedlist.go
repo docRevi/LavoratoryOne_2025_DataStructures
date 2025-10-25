@@ -2,25 +2,23 @@ package main
 
 import "fmt"
 
-type DListNode struct {
-	value string
-	next  *DListNode
-	prev  *DListNode
+type DListNode[T comparable] struct {
+	value T
+	next  *DListNode[T]
+	prev  *DListNode[T]
 }
 
-type DoubleLinkedList struct {
-	head *DListNode
-	tail *DListNode
+type DoubleLinkedList[T comparable] struct {
+	head *DListNode[T]
+	tail *DListNode[T]
 }
 
-var DList DoubleLinkedList
-
-func NewDoubleLinkedList() *DoubleLinkedList {
-	return &DoubleLinkedList{}
+func NewDoubleLinkedList[T comparable]() *DoubleLinkedList[T] {
+	return &DoubleLinkedList[T]{}
 }
 
-func (d *DoubleLinkedList) DPUSHFront(value string) {
-	newNode := &DListNode{value: value}
+func (d *DoubleLinkedList[T]) DPUSHFront(value T) {
+	newNode := &DListNode[T]{value: value}
 	if d.head == nil {
 		d.head = newNode
 		d.tail = newNode
@@ -31,8 +29,8 @@ func (d *DoubleLinkedList) DPUSHFront(value string) {
 	d.head = newNode
 }
 
-func (d *DoubleLinkedList) DPUSHBack(value string) {
-	newNode := &DListNode{value: value}
+func (d *DoubleLinkedList[T]) DPUSHBack(value T) {
+	newNode := &DListNode[T]{value: value}
 	if d.head == nil {
 		d.head = newNode
 		d.tail = newNode
@@ -43,20 +41,24 @@ func (d *DoubleLinkedList) DPUSHBack(value string) {
 	d.tail = newNode
 }
 
-func (d *DoubleLinkedList) DINSERTAfter(value string, key int) {
+func (d *DoubleLinkedList[T]) DINSERTAfter(value T, key int) {
 	if d.head == nil || key < 1 {
 		return
 	}
 
 	iter := d.head
-	for i := 1; i < key && iter != nil; i++ {
+	for i := 1; i < key; i++ {
+		if iter == nil {
+			return
+		}
 		iter = iter.next
 	}
+
 	if iter == nil {
 		return
 	}
 
-	newNode := &DListNode{value: value}
+	newNode := &DListNode[T]{value: value}
 	newNode.next = iter.next
 	newNode.prev = iter
 
@@ -65,10 +67,11 @@ func (d *DoubleLinkedList) DINSERTAfter(value string, key int) {
 	} else {
 		d.tail = newNode
 	}
+
 	iter.next = newNode
 }
 
-func (d *DoubleLinkedList) DINSERTBefore(value string, key int) {
+func (d *DoubleLinkedList[T]) DINSERTBefore(value T, key int) {
 	if d.head == nil || key < 1 {
 		return
 	}
@@ -79,47 +82,66 @@ func (d *DoubleLinkedList) DINSERTBefore(value string, key int) {
 	}
 
 	iter := d.head
-	for i := 1; i < key && iter != nil; i++ {
+	for i := 1; i < key-1; i++ {
+		if iter == nil {
+			return
+		}
 		iter = iter.next
 	}
+
 	if iter == nil {
 		return
 	}
 
-	newNode := &DListNode{value: value}
+	newNode := &DListNode[T]{value: value}
 	newNode.prev = iter.prev
 	newNode.next = iter
-	iter.prev.next = newNode
+
+	if iter.prev != nil {
+		iter.prev.next = newNode
+	}
 	iter.prev = newNode
+
+	if iter == d.head {
+		d.head = newNode
+	}
 }
 
-func (d *DoubleLinkedList) DDELHead() {
+func (d *DoubleLinkedList[T]) DDELHead() {
 	if d.head == nil {
 		return
 	}
-	if d.head.next == nil {
-		d.head = nil
-		d.tail = nil
-		return
-	}
-	d.head = d.head.next
-	d.head.prev = nil
-}
 
-func (d *DoubleLinkedList) DDELTail() {
-	if d.head == nil {
-		return
-	}
 	if d.head == d.tail {
 		d.head = nil
 		d.tail = nil
 		return
 	}
-	d.tail = d.tail.prev
-	d.tail.next = nil
+
+	d.head = d.head.next
+	if d.head != nil {
+		d.head.prev = nil
+	}
 }
 
-func (d *DoubleLinkedList) DDELBefore(index int) {
+func (d *DoubleLinkedList[T]) DDELTail() {
+	if d.head == nil {
+		return
+	}
+
+	if d.head == d.tail {
+		d.head = nil
+		d.tail = nil
+		return
+	}
+
+	d.tail = d.tail.prev
+	if d.tail != nil {
+		d.tail.next = nil
+	}
+}
+
+func (d *DoubleLinkedList[T]) DDELBefore(index int) {
 	if d.head == nil || index < 1 {
 		return
 	}
@@ -130,62 +152,13 @@ func (d *DoubleLinkedList) DDELBefore(index int) {
 	}
 
 	iter := d.head
-	for i := 1; i < index && iter != nil; i++ {
+	for i := 1; i < index-1; i++ {
+		if iter == nil {
+			return
+		}
 		iter = iter.next
 	}
-	if iter == nil || iter.prev == nil {
-		return
-	}
 
-	nodeToDelete := iter.prev
-	if nodeToDelete.prev != nil {
-		nodeToDelete.prev.next = iter
-	} else {
-		d.head = iter
-	}
-	iter.prev = nodeToDelete.prev
-}
-
-func (d *DoubleLinkedList) DDELAfter(index int) {
-	if d.head == nil || index < 1 {
-		return
-	}
-
-	iter := d.head
-	for i := 1; i < index && iter != nil; i++ {
-		iter = iter.next
-	}
-	if iter == nil || iter.next == nil {
-		return
-	}
-
-	nodeToDelete := iter.next
-	iter.next = nodeToDelete.next
-	if nodeToDelete.next != nil {
-		nodeToDelete.next.prev = iter
-	} else {
-		d.tail = iter
-	}
-}
-
-func (d *DoubleLinkedList) DDELValue(value string) {
-	if d.head == nil {
-		return
-	}
-
-	if d.head.value == value {
-		d.DDELHead()
-		return
-	}
-	if d.tail.value == value {
-		d.DDELTail()
-		return
-	}
-
-	iter := d.head
-	for iter != nil && iter.value != value {
-		iter = iter.next
-	}
 	if iter == nil {
 		return
 	}
@@ -198,7 +171,64 @@ func (d *DoubleLinkedList) DDELValue(value string) {
 	}
 }
 
-func (d *DoubleLinkedList) DGET(value string) int {
+func (d *DoubleLinkedList[T]) DDELAfter(index int) {
+	if d.head == nil || index < 1 {
+		return
+	}
+
+	iter := d.head
+	for i := 1; i < index; i++ {
+		if iter == nil {
+			return
+		}
+		iter = iter.next
+	}
+
+	if iter == nil {
+		return
+	}
+
+	if iter.prev != nil {
+		iter.prev.next = iter.next
+	}
+	if iter.next != nil {
+		iter.next.prev = iter.prev
+	}
+}
+
+func (d *DoubleLinkedList[T]) DDELValue(value T) {
+	if d.head == nil {
+		return
+	}
+
+	if d.head.value == value {
+		d.DDELHead()
+		return
+	}
+
+	if d.tail.value == value {
+		d.DDELTail()
+		return
+	}
+
+	iter := d.head
+	for iter != nil && iter.value != value {
+		iter = iter.next
+	}
+
+	if iter == nil {
+		return
+	}
+
+	if iter.prev != nil {
+		iter.prev.next = iter.next
+	}
+	if iter.next != nil {
+		iter.next.prev = iter.prev
+	}
+}
+
+func (d *DoubleLinkedList[T]) DGET(value T) int {
 	index := 0
 	iter := d.head
 
@@ -212,7 +242,7 @@ func (d *DoubleLinkedList) DGET(value string) int {
 	return -1
 }
 
-func (d *DoubleLinkedList) PrintForward() {
+func (d *DoubleLinkedList[T]) PrintForward() {
 	iter := d.head
 	for iter != nil {
 		fmt.Print(iter.value, " ")
@@ -221,7 +251,7 @@ func (d *DoubleLinkedList) PrintForward() {
 	fmt.Println()
 }
 
-func (d *DoubleLinkedList) PrintBackward() {
+func (d *DoubleLinkedList[T]) PrintBackward() {
 	iter := d.tail
 	for iter != nil {
 		fmt.Print(iter.value, " ")

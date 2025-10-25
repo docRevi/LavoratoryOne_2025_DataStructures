@@ -2,24 +2,22 @@ package main
 
 import "fmt"
 
-type ListNode struct {
-	value string
-	next  *ListNode
+type ListNode[T comparable] struct {
+	value T
+	next  *ListNode[T]
 }
 
-type LinkedList struct {
-	head *ListNode
-	tail *ListNode
+type LinkedList[T comparable] struct {
+	head *ListNode[T]
+	tail *ListNode[T]
 }
 
-var list LinkedList
-
-func NewLinkedList() *LinkedList {
-	return &LinkedList{}
+func NewLinkedList[T comparable]() *LinkedList[T] {
+	return &LinkedList[T]{}
 }
 
-func (l *LinkedList) LPUSHBack(value string) {
-	newNode := &ListNode{value: value}
+func (l *LinkedList[T]) LPUSHBack(value T) {
+	newNode := &ListNode[T]{value: value}
 	if l.head == nil {
 		l.head = newNode
 		l.tail = newNode
@@ -29,8 +27,8 @@ func (l *LinkedList) LPUSHBack(value string) {
 	l.tail = newNode
 }
 
-func (l *LinkedList) LPUSHFront(value string) {
-	newNode := &ListNode{value: value}
+func (l *LinkedList[T]) LPUSHFront(value T) {
+	newNode := &ListNode[T]{value: value}
 	if l.head == nil {
 		l.head = newNode
 		l.tail = newNode
@@ -40,20 +38,24 @@ func (l *LinkedList) LPUSHFront(value string) {
 	l.head = newNode
 }
 
-func (l *LinkedList) LINSERTAfter(value string, index int) {
-	if l.head == nil {
+func (l *LinkedList[T]) LINSERTAfter(value T, index int) {
+	if l.head == nil || index < 1 {
 		return
 	}
 
 	iter := l.head
-	for i := 1; i < index && iter != nil; i++ {
+	for i := 1; i < index; i++ {
+		if iter == nil {
+			return
+		}
 		iter = iter.next
 	}
+
 	if iter == nil {
 		return
 	}
 
-	newNode := &ListNode{value: value}
+	newNode := &ListNode[T]{value: value}
 	newNode.next = iter.next
 	iter.next = newNode
 
@@ -62,8 +64,8 @@ func (l *LinkedList) LINSERTAfter(value string, index int) {
 	}
 }
 
-func (l *LinkedList) LINSERTBefore(value string, index int) {
-	if l.head == nil {
+func (l *LinkedList[T]) LINSERTBefore(value T, index int) {
+	if l.head == nil || index < 1 {
 		return
 	}
 
@@ -73,19 +75,23 @@ func (l *LinkedList) LINSERTBefore(value string, index int) {
 	}
 
 	iter := l.head
-	for i := 1; i < index-1 && iter != nil; i++ {
+	for i := 1; i < index-1; i++ {
+		if iter == nil {
+			return
+		}
 		iter = iter.next
 	}
+
 	if iter == nil {
 		return
 	}
 
-	newNode := &ListNode{value: value}
+	newNode := &ListNode[T]{value: value}
 	newNode.next = iter.next
 	iter.next = newNode
 }
 
-func (l *LinkedList) LDELHead() {
+func (l *LinkedList[T]) LDELHead() {
 	if l.head == nil {
 		return
 	}
@@ -95,7 +101,7 @@ func (l *LinkedList) LDELHead() {
 	}
 }
 
-func (l *LinkedList) LDELTail() {
+func (l *LinkedList[T]) LDELTail() {
 	if l.head == nil {
 		return
 	}
@@ -110,19 +116,24 @@ func (l *LinkedList) LDELTail() {
 	for iter.next != l.tail {
 		iter = iter.next
 	}
+
 	iter.next = nil
 	l.tail = iter
 }
 
-func (l *LinkedList) LDELAfter(index int) {
-	if l.head == nil {
+func (l *LinkedList[T]) LDELAfter(index int) {
+	if l.head == nil || index < 1 {
 		return
 	}
 
 	iter := l.head
-	for i := 1; i < index && iter != nil; i++ {
+	for i := 1; i < index; i++ {
+		if iter == nil {
+			return
+		}
 		iter = iter.next
 	}
+
 	if iter == nil || iter.next == nil {
 		return
 	}
@@ -133,7 +144,7 @@ func (l *LinkedList) LDELAfter(index int) {
 	}
 }
 
-func (l *LinkedList) LDELBefore(index int) {
+func (l *LinkedList[T]) LDELBefore(index int) {
 	if l.head == nil || index <= 1 {
 		return
 	}
@@ -144,20 +155,21 @@ func (l *LinkedList) LDELBefore(index int) {
 	}
 
 	iter := l.head
-	for i := 1; i < index-2 && iter != nil; i++ {
+	for i := 1; i < index-2; i++ {
+		if iter == nil {
+			return
+		}
 		iter = iter.next
 	}
+
 	if iter == nil || iter.next == nil {
 		return
 	}
 
 	iter.next = iter.next.next
-	if iter.next == nil {
-		l.tail = iter
-	}
 }
 
-func (l *LinkedList) LDEL(value string) {
+func (l *LinkedList[T]) LDEL(value T) {
 	if l.head == nil {
 		return
 	}
@@ -172,15 +184,17 @@ func (l *LinkedList) LDEL(value string) {
 		iter = iter.next
 	}
 
-	if iter.next != nil {
-		iter.next = iter.next.next
-		if iter.next == nil {
-			l.tail = iter
-		}
+	if iter.next == nil {
+		return
+	}
+
+	iter.next = iter.next.next
+	if iter.next == nil {
+		l.tail = iter
 	}
 }
 
-func (l *LinkedList) Print() {
+func (l *LinkedList[T]) Print() {
 	current := l.head
 	for current != nil {
 		fmt.Print(current.value, " ")
@@ -189,7 +203,7 @@ func (l *LinkedList) Print() {
 	fmt.Println()
 }
 
-func (l *LinkedList) LGET(value string) int {
+func (l *LinkedList[T]) LGET(value T) int {
 	index := 1
 	current := l.head
 

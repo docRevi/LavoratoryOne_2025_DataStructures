@@ -2,24 +2,22 @@ package main
 
 import "fmt"
 
-type QueueNode struct {
-	value string
-	next  *QueueNode
+type QueueNode[T comparable] struct {
+	value T
+	next  *QueueNode[T]
 }
 
-type Queue struct {
-	head *QueueNode
-	tail *QueueNode
+type Queue[T comparable] struct {
+	head *QueueNode[T]
+	tail *QueueNode[T]
 }
 
-var queue Queue
-
-func NewQueue() *Queue {
-	return &Queue{}
+func NewQueue[T comparable]() *Queue[T] {
+	return &Queue[T]{}
 }
 
-func (q *Queue) QPUSH(value string) {
-	newNode := &QueueNode{value: value}
+func (q *Queue[T]) QPUSH(value T) {
+	newNode := &QueueNode[T]{value: value}
 	if q.head == nil {
 		q.head = newNode
 		q.tail = newNode
@@ -29,21 +27,22 @@ func (q *Queue) QPUSH(value string) {
 	q.tail = newNode
 }
 
-func (q *Queue) QPOP() string {
+func (q *Queue[T]) QPOP() T {
+	var zero T
 	if q.head == nil {
 		fmt.Println("Очередь пустая")
-		return ""
+		return zero
 	}
 
-	value := q.head.value
+	nodeToDelete := q.head
 	q.head = q.head.next
 	if q.head == nil {
 		q.tail = nil
 	}
-	return value
+	return nodeToDelete.value
 }
 
-func (q *Queue) Print() {
+func (q *Queue[T]) Print() {
 	if q.head == nil {
 		fmt.Println("Очередь пустая")
 		return
