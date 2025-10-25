@@ -7,111 +7,14 @@
 #include <map>
 #include <sstream>
 
-Array arr;
-LinkedList list;
-DoubleLinkedList DList;
-Stack stack;
-Queue queue;
+Array<string> arr;
+LinkedList<string> list;
+DoubleLinkedList<string> DList;
+Stack<string> stack;
+Queue<string> queue;
 Tree tree;
 
 using namespace std;
-
-// массив
-void save_array(const string& filename, const Array& arr) {
-    ofstream out(filename);
-    for (int i = 0; i < arr.size; ++i)
-        out << arr.data[i] << " ";
-}
-void load_array(const string& filename, Array& arr) {
-    ifstream in(filename);
-    string x;
-    while(getline(in, x)){
-        if (!x.empty())
-            arr.Apush_back(x);
-    }
-}
-
-void save_list(const string& filename, const LinkedList& list) {
-    ofstream out(filename);
-    for (auto iter = list.head; iter; iter = iter->next)
-        out << iter->value << " ";
-}
-void load_list(const string& filename, LinkedList& list) {
-    ifstream in(filename);
-    string x;
-    while(getline(in, x)){
-        if (!x.empty())
-            list.LPUSHBack(x);
-    }
-}
-
-// двусвязный список
-void save_dlist(const string& filename, const DoubleLinkedList& dlist) {
-    ofstream out(filename);
-    for (auto iter = dlist.head; iter; iter = iter->next)
-        out << iter->value << " ";
-}
-void load_dlist(const string& filename, DoubleLinkedList& dlist) {
-    ifstream in(filename);
-    string x;
-    while(getline(in, x)){
-        if (!x.empty())
-            dlist.DPUSHBack(x);
-    }
-}
-
-//очередь
-void save_queue(const string& filename, const Queue& q) {
-    ofstream out(filename);
-    for (auto iter = q.head; iter; iter = iter->next)
-        out << iter->value << " ";
-}
-void load_queue(const string& filename, Queue& q) {
-    ifstream in(filename);
-    string x;
-    while(getline(in, x)){
-        if (!x.empty())
-            q.QPUSH(x);
-    }
-}
-
-// стек
-void save_stack(const string& filename, const Stack& db) {
-    ofstream out(filename);
-    for (auto iter = db.top; iter; iter = iter->next)
-        out << iter->value << " ";
-}
-void load_stack(const string& filename, Stack& db) {
-    ifstream in(filename);
-    string x;
-    vector<string> vals;
-    while(getline(in, x)){
-        if (!x.empty())
-            vals.push_back(x);
-    }
-    for (auto iter = vals.rbegin(); iter != vals.rend(); ++iter)
-        db.SPUSH(*iter);
-}
-
-// дерево
-void save_tree_helper(TreeNode* node, ofstream& out) {
-    if(!node) return;
-    out << node->value << " ";
-    save_tree_helper(node->left, out);
-    save_tree_helper(node->right, out);
-}
-void save_tree(const string& filename, const Tree& t) {
-    ofstream out(filename);
-    save_tree_helper(t.root, out);
-}
-void load_tree(const string& filename, Tree& t) {
-    ifstream in(filename);
-    string x;
-    while(getline(in, x)){
-        if (!x.empty())
-            t.TPUSH(stoi(x));
-    }
-}
 
 map<string, function<void(const string&)>> one_arg = {
     // Массив

@@ -30,7 +30,4 @@ struct Tree {
 
 };
 
-void printTreeHorizontal(TreeNode* root, const string& prefix = "", bool isLeft = true);
-
-
 #endif

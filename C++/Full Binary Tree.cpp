@@ -1,6 +1,7 @@
 #include "Full Binary Tree.h"
 
 #include <iostream>
+
 void Tree::TPUSH(const int value) {
     if (root == nullptr) {
         root = new TreeNode(value);
